@@ -14,6 +14,34 @@ from documentation.models import Documentation
 from product.models import Product
 
 
+category_matching_table = {
+    'smesi-dlya-ustroystva-pola': '',
+    'shtukaturki': '',
+    'shpaklevki': '',
+    'plitochnye-klei': '',
+    'zatirki-i-rasshivki': '',
+    'dekorativnye-shtukaturki': '',
+    'smesi-dlya-teploizolyatsii': '',
+    'kladochnye-rastvory': '',
+    'montazhnye-klei': '',
+    'gidroizolyatsiya': '',
+    'spetsialnye-rastvory': '',
+    'gruntovki': '',
+    'smesi-dlya-bruschatki': '',
+    # 'podlivochnye-sostavy': '',
+    # 'promyshlennye-poly': '',
+    # 'remont-i-zashchita-betona': '',
+    'dobavki-v-rastvory': '',
+    'smesi-dlya-pechey-i-kaminov': '',
+    'osnovit-home': '',
+    'kraski': '',
+}
+
+
+
+
+
+
 # Читаем данные из файла
 with open(f'{BASE_DIR}/data.json', 'r') as f:
     data = json.load(f)

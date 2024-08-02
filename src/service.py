@@ -61,13 +61,13 @@ async def get_product_links(category_links: list[str]) -> list:
 
 @print_execution_time
 async def get_all_products_information(urls: list[str]) -> list:
-    urls = ['https://voronezh.cedrus.market/catalog/dekorativnye-shtukaturki/ekstervell-osl-shuba/', 'https://voronezh.cedrus.market/catalog/dekorativnye-shtukaturki/shtukaturka-dekorativnaya-osnovit-ekstervell-25-kg-shuba-color/']
+    # urls = ['https://voronezh.cedrus.market/catalog/dekorativnye-shtukaturki/ekstervell-osl-shuba/', 'https://voronezh.cedrus.market/catalog/dekorativnye-shtukaturki/shtukaturka-dekorativnaya-osnovit-ekstervell-25-kg-shuba-color/']
 
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
         tasks = [asyncio.create_task(get_one_product_information(session, product_id, url)) for product_id, url in enumerate(urls)]
         products_information = []
         for task in tasks:
-            time.sleep(3)
+            time.sleep(2)
             products_information.append(await task)
 
         with open('data.json', 'w') as f:
@@ -82,6 +82,7 @@ async def get_one_product_information(session: aiohttp.ClientSession, product_id
     soup = BeautifulSoup(html, "html5lib")
 
     product_info = {
+        "category_slug": get_category_slug(url),
         "title": get_title(soup),
         "images": await download_product_images(session, product_id, soup),
         "certs": await download_product_certs(session, product_id, soup),
@@ -112,6 +113,7 @@ async def download_product_images(session: aiohttp.ClientSession, product_id: in
     for photo_id, url in enumerate(photo_links):
         relative_save_path = f'files/product/{product_id}/images/{photo_id}{get_exp_by_url(url)}'
         full_save_path = f'{BASE_DIR}/{relative_save_path}'
+        time.sleep(2)
         await download_file(session, url, full_save_path)
         images_save_path_list.append(relative_save_path)
     
@@ -134,6 +136,7 @@ async def download_product_certs(session: aiohttp.ClientSession, product_id: int
     for cert_id, c_info in enumerate(certs_infos):
         relative_save_path = f'files/product/{product_id}/certs/{cert_id}{get_exp_by_url(c_info[1])}'
         save_path = f'{BASE_DIR}/{relative_save_path}'
+        time.sleep(2)
         await download_file(session, c_info[1], save_path)
         certs_info.append(
             {
@@ -236,3 +239,6 @@ def get_options_for_selection(soup):
         }
         result.append(item)
     return result
+
+def get_category_slug(url: str) -> dict:
+    return url.split('/')[-3]
