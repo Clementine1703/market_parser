@@ -17,6 +17,7 @@ django.setup()
 
 from documentation.models import Documentation
 from product.models import Product, MainCharacteristic, Characteristic
+from category.models import Category
 
 
 category_matching_table = {
@@ -62,16 +63,19 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
                     print(weigth_list, 2)
 
 
-        for weigth in weigth_list:
-            slug = slugify(f"{data['title']}-{weigth}-asasdfwefgbrtrrfdasdf")
+        # for weigth in weigth_list:
+            slug = slugify(f"{data['title']}-asasdfwefgbrtrrfdasdf")
 
             # Создаем или обновляем продукт
             product, created = Product.objects.get_or_create(title=data['title'], sale=0, slug=slug)
 
             # Обновляем поля продукта
             product.description = data['application']
-            product.weight = weigth
+            # product.weight = weigth
             product.save()
+
+            category = Category.objects.filter(slug=category_matching_table[data['category_slug']]).first()
+            product.category.add(category)
 
             # Обрабатываем изображения
             for image_path in data['images']:
@@ -82,7 +86,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
             for cert in data['certs']:
                 with open(f"{BASE_DIR}/{cert['path']}", 'rb') as f:
                     django_file = File(f)
-                    slug = slugify(f"{cert['name']}-{weigth}-asdadfgbtwertsasdrffdf")
+                    slug = slugify(f"{cert['name']}-asdadfgbtwertsasdrffdf")
                     if Documentation.objects.filter(slug=slug).exists():
                         raise ValueError(f"Slug '{slug}' already exists.")
                     doc, created = Documentation.objects.get_or_create(title=cert['name'], slug=slug)
