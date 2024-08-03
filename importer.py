@@ -3,6 +3,7 @@ import json
 import sys
 from pathlib import Path
 import shortuuid
+import random
 
 
 from django.core.files import File
@@ -22,7 +23,7 @@ from product.models import Product, MainCharacteristic, Characteristic, CurrentP
 from category.models import Category
 
 def generate_vendor_code():
-    return shortuuid.uuid()[:20].upper()
+    return ''.join(random.choices('0123456789', k=20))
 
 category_matching_table = {
     'smesi-dlya-ustroystva-pola': 'smesi-dlya-pola',
