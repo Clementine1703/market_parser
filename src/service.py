@@ -39,6 +39,7 @@ async def get_category_links(url: str) -> list[str]:
         except:
             catalog_item_links.append(url)
 
+    write_to_file('category_links.txt', catalog_item_links)
     return catalog_item_links
 
 
@@ -48,6 +49,8 @@ async def get_product_links(category_links: list[str]) -> list:
     soups = [BeautifulSoup(html, "html5lib") for html in product_html_pages]
 
     product_divs_of_all_categories = [soup.find_all("div", {"class": "main-item-goods"}) for soup in soups]
+    write_to_file('product_divs.txt', product_divs_of_all_categories)
+
 
     all_product_links = []
     for product_divs_of_one_category in product_divs_of_all_categories:
@@ -56,6 +59,7 @@ async def get_product_links(category_links: list[str]) -> list:
         if category_product_links:
             all_product_links += category_product_links
 
+    write_to_file('product_links.txt', all_product_links)
     return all_product_links
 
 
@@ -242,3 +246,11 @@ def get_options_for_selection(soup):
 
 def get_category_slug(url: str) -> dict:
     return url.split('/')[-3]
+
+def write_to_file(file_path, content):
+    try:
+        # Открываем файл в режиме записи ('w' - write), если файл не существует, он будет создан
+        with open(file_path, 'w') as file:
+            file.write(str(content))
+    except Exception as e:
+        print(f"Произошла ошибка при записи в файл: {e}")

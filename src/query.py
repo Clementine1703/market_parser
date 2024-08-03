@@ -16,8 +16,9 @@ async def fetch(session, url):
     
 async def fetch_all(urls):
     async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
-        texts = await asyncio.gather(*[
-            fetch(session, url)
-            for url in urls
-        ])
+        texts = []
+        for url in urls:
+            text = await fetch(session, url)
+            texts.append(text)
+            await asyncio.sleep(3)
         return texts

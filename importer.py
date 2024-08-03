@@ -16,7 +16,7 @@ import django
 django.setup()
 
 from documentation.models import Documentation
-from product.models import Product, MainCharacteristic, Characteristic
+from product.models import Product, MainCharacteristic, Characteristic, CurrentProduct, Packing, Color, Unit
 from category.models import Category
 
 
@@ -50,21 +50,13 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
     items = json.load(f)
     for data in items:
 
-        weigth_list = [0]
+        weigth = 0
         if data.get('weigth', False):
-            weigth_list = []
-            weigth_list.append(data['weigth'].split(' ')[1])
-            print(weigth_list, 1)
-        elif data.get('options_for_selection'):
-            for el in data.get('options_for_selection'):
-                if el['title'] == 'Вес':
-                    weigth_list = []
-                    weigth_list += [value.split(' ')[0] for value in el['values']]
-                    print(weigth_list, 2)
-
+            weigth = data['weigth'].split(' ')[1]
+            
 
         # for weigth in weigth_list:
-        slug = slugify(f"{data['title']}-asacsdfwefgbrtskjhdf-ras-dfass-fsgfff-drd-fg-fasdfdasdf")
+        slug = slugify(f"{data['title']}-asacsdffwefgbrtaasffdefgfsfffkjhdff-ras-dfass-fsgfff-drd-fg-fasdfdasdf")
 
         category_slug = data['category_slug']
         if category_slug in category_matching_table:
@@ -82,7 +74,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
         
         # Обновляем поля продукта
         product.description = data['application']
-        product.weight = float(str(weigth_list[0]).replace(',', '.').replace('л', '').replace('кг', ''))
+        product.weight = float(str(weigth).replace(',', '.').replace('л', '').replace('кг', ''))
         product.save()
 
         category = Category.objects.filter(slug=category_matching_table[data['category_slug']]).first()
@@ -96,7 +88,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
         for id, cert in enumerate(data['certs']):
             with open(f"{BASE_DIR}/{cert['path']}", 'rb') as f:
                 django_file = File(f)
-                slug = slugify(f"product-{product.id}-{cert['name']}-fdaerg-sdk-fs-df-a-s-vv-{id}")
+                slug = slugify(f"product-{product.id}-{cert['name']}-fdafggffefffffffffrg-sdk-fs-df-a-s-vv-{id}")
                 if Documentation.objects.filter(slug=slug).exists():
                     raise ValueError(f"Slug '{slug}' already exists.")
                 doc, created = Documentation.objects.get_or_create(title=cert['name'], slug=slug)
@@ -112,6 +104,48 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
                 prop, _ = MainCharacteristic.objects.get_or_create(title=key)
                 characteristic, created = Characteristic.objects.get_or_create(product=product, prop=prop, val=value)
                 characteristic.save()
+
+
+        packings = []
+        if data.get('options_for_selection'):
+            for el in data.get('options_for_selection'):
+                if el['title'] == 'Вес':
+                    for value in el['values']:
+                        unit = Unit(unit=value.split(' ')[1])
+                        unit.save()
+                        packing = Packing(size=float(str(value.split(' ')[0]).replace(',', '.')), unit=unit)
+                        packing.save()
+                        packings.append(packing)
+
+        colors = []
+        if data.get('options_for_selection'):
+            for el in data.get('options_for_selection'):
+                if el['title'] == 'Цвет':
+                    for value in el['values']:
+                        if value != '-':
+                            color = Color(prop=value)
+                            color.save()
+                            colors.append(color)
+
+        current_products = []
+        if packings and colors:
+            for packing in packings:
+                for color in colors:
+                    current_products.append(CurrentProduct(color=color, packing=packing))
+        elif packings:
+            for packing in packings:
+                current_products.append(CurrentProduct(packing=packing))
+        elif colors:
+            for color in colors:
+                current_products.append(CurrentProduct(color=color))
+
+        for cur_product in current_products:
+            cur_product.product = product
+            cur_product.save()
+        
+
+
+
         
 
 
