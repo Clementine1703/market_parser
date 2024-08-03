@@ -55,7 +55,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
         if data.get('weigth', False):
             weigth = data['weigth'].split(' ')[1]
             
-        slug = slugify(f"{data['title']}-asacsdffweffgbrtaasffdevffgffsffffkffjhdff-rafs-dfass-fsgfff-drd-fg-fasdfdasdf")
+        slug = slugify(f"{data['title']}")
 
         category_slug = data['category_slug']
         if category_slug in category_matching_table:
@@ -93,7 +93,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
             if os.path.exists(full_cert_path):
                 with open(full_cert_path, 'rb') as f:
                     django_file = File(f)
-                    slug = slugify(f"product-{product.id}-{cert['name']}-fdfavffffgfffgfffefffffffffrg-sdk-fs-df-a-s-vv-{id}")
+                    slug = slugify(f"product-{product.id}-{cert['name']}-{id}")
                     if Documentation.objects.filter(slug=slug).exists():
                         raise ValueError(f"Slug '{slug}' already exists.")
                     doc, created = Documentation.objects.get_or_create(title=cert['name'], slug=slug)
