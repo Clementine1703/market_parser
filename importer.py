@@ -2,6 +2,8 @@ import os
 import json
 import sys
 from pathlib import Path
+import shortuuid
+
 
 from django.core.files import File
 from slugify import slugify
@@ -19,6 +21,8 @@ from documentation.models import Documentation
 from product.models import Product, MainCharacteristic, Characteristic, CurrentProduct, Packing, Color, Unit
 from category.models import Category
 
+def generate_vendor_code():
+    return shortuuid.uuid()[:10].upper()
 
 category_matching_table = {
     'smesi-dlya-ustroystva-pola': 'smesi-dlya-pola',
@@ -140,6 +144,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
                 current_products.append(CurrentProduct(color=color))
 
         for cur_product in current_products:
+            cur_product.vendorCode = generate_vendor_code()
             cur_product.product = product
             cur_product.save()
         
@@ -164,3 +169,4 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
             # Например: Option.objects.get_or_create(product=product, title=title, values=values)
 
         print(f"Product {product.title} has been {'created' if created else 'updated'}.")
+
