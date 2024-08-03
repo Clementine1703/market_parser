@@ -22,7 +22,7 @@ from product.models import Product, MainCharacteristic, Characteristic, CurrentP
 from category.models import Category
 
 def generate_vendor_code():
-    return shortuuid.uuid()[:10].upper()
+    return shortuuid.uuid()[:20].upper()
 
 category_matching_table = {
     'smesi-dlya-ustroystva-pola': 'smesi-dlya-pola',
@@ -60,7 +60,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
             
 
         # for weigth in weigth_list:
-        slug = slugify(f"{data['title']}-asacsdffwefgbrtaasffdefgfsfffkjhdff-ras-dfass-fsgfff-drd-fg-fasdfdasdf")
+        slug = slugify(f"{data['title']}-asacsdffweffgbrtaasffdevffgffsffffkffjhdff-ras-dfass-fsgfff-drd-fg-fasdfdasdf")
 
         category_slug = data['category_slug']
         if category_slug in category_matching_table:
@@ -92,7 +92,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
         for id, cert in enumerate(data['certs']):
             with open(f"{BASE_DIR}/{cert['path']}", 'rb') as f:
                 django_file = File(f)
-                slug = slugify(f"product-{product.id}-{cert['name']}-fdafggffefffffffffrg-sdk-fs-df-a-s-vv-{id}")
+                slug = slugify(f"product-{product.id}-{cert['name']}-fdfavfffgfffgfffefffffffffrg-sdk-fs-df-a-s-vv-{id}")
                 if Documentation.objects.filter(slug=slug).exists():
                     raise ValueError(f"Slug '{slug}' already exists.")
                 doc, created = Documentation.objects.get_or_create(title=cert['name'], slug=slug)
@@ -147,6 +147,12 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
             cur_product.vendorCode = generate_vendor_code()
             cur_product.product = product
             cur_product.save()
+
+        if not data.get('options_for_selection'):
+            cur_product = CurrentProduct(vendorСode=f'no_current_{product.id}')
+            cur_product.product = product
+            cur_product.save()
+
         
 
 
