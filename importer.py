@@ -64,7 +64,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
 
 
         # for weigth in weigth_list:
-        slug = slugify(f"{data['title']}-asacsdfwefgbrtsdfrasdfassffffdrdfgfasdfdasdf")
+        slug = slugify(f"{data['title']}-asacsdfwefgbrtskjhdf-ras-dfass-fsgfff-drd-fg-fasdfdasdf")
 
         category_slug = data['category_slug']
         if category_slug in category_matching_table:
@@ -82,7 +82,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
         
         # Обновляем поля продукта
         product.description = data['application']
-        product.weight = weigth_list[0]
+        product.weight = float(str(weigth_list[0]).replace(',', '.').replace('л', '').replace('кг', ''))
         product.save()
 
         category = Category.objects.filter(slug=category_matching_table[data['category_slug']]).first()
@@ -96,7 +96,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
         for id, cert in enumerate(data['certs']):
             with open(f"{BASE_DIR}/{cert['path']}", 'rb') as f:
                 django_file = File(f)
-                slug = slugify(f"product-{product.id}-{cert['name']}-fdasdfsdfasvv-{id}")
+                slug = slugify(f"product-{product.id}-{cert['name']}-fdaerg-sdk-fs-df-a-s-vv-{id}")
                 if Documentation.objects.filter(slug=slug).exists():
                     raise ValueError(f"Slug '{slug}' already exists.")
                 doc, created = Documentation.objects.get_or_create(title=cert['name'], slug=slug)
