@@ -2,9 +2,7 @@ import os
 import json
 import sys
 from pathlib import Path
-import shortuuid
 import random
-
 
 from django.core.files import File
 from slugify import slugify
@@ -48,8 +46,6 @@ category_matching_table = {
     'kraski': 'interernye-kraski',
 }
 
-
-
 # Читаем данные из файла
 with open(f'{BASE_DIR}/data.json', 'r') as f:
     items = json.load(f)
@@ -59,9 +55,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
         if data.get('weigth', False):
             weigth = data['weigth'].split(' ')[1]
             
-
-        # for weigth in weigth_list:
-        slug = slugify(f"{data['title']}-asacsdffweffgbrtaasffdevffgffsffffkffjhdff-ras-dfass-fsgfff-drd-fg-fasdfdasdf")
+        slug = slugify(f"{data['title']}-asacsdffweffgbrtaasffdevffgffsffffkffjhdff-rafs-dfass-fsgfff-drd-fg-fasdfdasdf")
 
         category_slug = data['category_slug']
         if category_slug in category_matching_table:
@@ -86,19 +80,27 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
 
         # Обрабатываем изображения
         for image_path in data['images']:
-            with open(f'{BASE_DIR}/{image_path}', 'rb') as f:
-                django_file = File(f)
-                product.image.save(os.path.basename(image_path), django_file, save=True)
+            full_image_path = f'{BASE_DIR}/{image_path}'
+            if os.path.exists(full_image_path):
+                with open(full_image_path, 'rb') as f:
+                    django_file = File(f)
+                    product.image.save(os.path.basename(image_path), django_file, save=True)
+            else:
+                print(f"Image not found: {full_image_path}")
 
         for id, cert in enumerate(data['certs']):
-            with open(f"{BASE_DIR}/{cert['path']}", 'rb') as f:
-                django_file = File(f)
-                slug = slugify(f"product-{product.id}-{cert['name']}-fdfavfffgfffgfffefffffffffrg-sdk-fs-df-a-s-vv-{id}")
-                if Documentation.objects.filter(slug=slug).exists():
-                    raise ValueError(f"Slug '{slug}' already exists.")
-                doc, created = Documentation.objects.get_or_create(title=cert['name'], slug=slug)
-                doc.file_download.save(os.path.basename(cert['path']), django_file, save=True)
-                product.documents.add(doc)
+            full_cert_path = f"{BASE_DIR}/{cert['path']}"
+            if os.path.exists(full_cert_path):
+                with open(full_cert_path, 'rb') as f:
+                    django_file = File(f)
+                    slug = slugify(f"product-{product.id}-{cert['name']}-fdfavffffgfffgfffefffffffffrg-sdk-fs-df-a-s-vv-{id}")
+                    if Documentation.objects.filter(slug=slug).exists():
+                        raise ValueError(f"Slug '{slug}' already exists.")
+                    doc, created = Documentation.objects.get_or_create(title=cert['name'], slug=slug)
+                    doc.file_download.save(os.path.basename(cert['path']), django_file, save=True)
+                    product.documents.add(doc)
+            else:
+                print(f"Certificate not found: {full_cert_path}")
 
         for feature in data['featues']:
             if feature:
@@ -109,7 +111,6 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
                 prop, _ = MainCharacteristic.objects.get_or_create(title=key)
                 characteristic, created = Characteristic.objects.get_or_create(product=product, prop=prop, val=value)
                 characteristic.save()
-
 
         packings = []
         if data.get('options_for_selection'):
@@ -145,7 +146,7 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
                 current_products.append(CurrentProduct(color=color))
 
         for cur_product in current_products:
-            cur_product.vendorCode = generate_vendor_code()
+            cur_product.vendorСode = generate_vendor_code()
             cur_product.product = product
             cur_product.save()
 
@@ -154,26 +155,4 @@ with open(f'{BASE_DIR}/data.json', 'r') as f:
             cur_product.product = product
             cur_product.save()
 
-        
-
-
-
-        
-
-
-
-        # Обрабатываем преимущества
-        # for advantage in data['advantages']:
-            # ...
-            # Здесь можно создать модель для преимуществ и связать её с продуктом
-            # Например: Advantage.objects.get_or_create(product=product, text=advantage)
-
-        # Обрабатываем опции выбора
-        # for option in data['options_for_selection']:
-        #     title = option['title']
-        #     values = option['values']
-            # Здесь можно создать модель для опций выбора и связать её с продуктом
-            # Например: Option.objects.get_or_create(product=product, title=title, values=values)
-
         print(f"Product {product.title} has been {'created' if created else 'updated'}.")
-
